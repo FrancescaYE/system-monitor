@@ -1,0 +1,679 @@
+{% extends "base.html" %}
+{% block title %}CloudOps Monitor | Dashboard{% endblock %}
+
+{% block content %}
+
+<style>
+    /* ==========================================
+       CLOUDOPS MONITOR — GRAPHITE DASHBOARD
+       ========================================== */
+
+    .dashboard {
+        --graphite-bg: #18191b;
+        --graphite-surface: #202225;
+        --graphite-border: #34363a;
+        --graphite-heading: #f0f0f0;
+        --graphite-text: #d0d0d0;
+        --graphite-muted: #92959b;
+        --graphite-accent: #c4c7cc;
+
+        --state-healthy: #a6c5ad;
+        --state-healthy-bg: #29372e;
+        --state-warning: #dfc38c;
+        --state-warning-bg: #3b3427;
+        --state-neutral: #c0c3c8;
+        --state-neutral-bg: #303237;
+
+        color: var(--graphite-text);
+        font-size: 0.875rem;
+    }
+
+    /* Page heading */
+
+    .dashboard .dashboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin-bottom: 1.75rem;
+    }
+
+    .dashboard .page-pretitle {
+        color: var(--graphite-muted);
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+        margin-bottom: 0.35rem;
+    }
+
+    .dashboard .page-title {
+        color: var(--graphite-heading);
+        font-size: 1.55rem;
+        font-weight: 600;
+        letter-spacing: -0.035em;
+        line-height: 1.35;
+        margin: 0 0 0.35rem;
+    }
+
+    .dashboard .page-description {
+        color: var(--graphite-muted);
+        font-size: 0.875rem;
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    .dashboard .btn-monitor {
+    background: #0d6efd;
+    color: #142331;
+    border: 1px solid #7cb8e8;
+    border-radius: 5px;
+    padding: 0.7rem 1.4rem;
+    min-width: 180px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.dashboard .btn-monitor:hover {
+    background: #9acbf0;
+    border-color: #9acbf0;
+    color: #142331;
+}
+
+    /* Shared section headings */
+
+    .dashboard .section-heading {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+        margin-bottom: 0.8rem;
+    }
+
+    .dashboard .section-title {
+        color: var(--graphite-heading);
+        font-size: 0.925rem;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    .dashboard .section-description {
+        color: var(--graphite-muted);
+        font-size: 0.8rem;
+        margin-top: 0.25rem;
+    }
+
+    /* Server summary */
+
+    .dashboard .server-panel {
+        background: var(--graphite-surface);
+        border: 1px solid var(--graphite-border);
+        border-radius: 7px;
+        margin-bottom: 1.75rem;
+    }
+
+    .dashboard .server-panel-inner {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1.25rem;
+        padding: 1.1rem 1.25rem;
+        flex-wrap: wrap;
+    }
+
+    .dashboard .server-identity {
+        min-width: 0;
+    }
+
+    .dashboard .server-label {
+        color: var(--graphite-muted);
+        font-size: 0.75rem;
+        font-weight: 500;
+        margin-bottom: 0.35rem;
+    }
+
+    .dashboard .server-name {
+        color: var(--graphite-heading);
+        font-size: 1rem;
+        font-weight: 600;
+        overflow-wrap: anywhere;
+    }
+
+    .dashboard .recorded-time {
+        color: var(--graphite-muted);
+        font-size: 0.78rem;
+        margin-top: 0.35rem;
+    }
+
+    .dashboard .server-health {
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+    }
+
+    .dashboard .health-caption {
+        color: var(--graphite-muted);
+        font-size: 0.78rem;
+    }
+
+    /* Status labels */
+
+    .dashboard .status-badge {
+        display: inline-block;
+        max-width: 100%;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.72rem;
+        font-weight: 600;
+        line-height: 1.5;
+        white-space: normal;
+        overflow-wrap: anywhere;
+    }
+
+    .dashboard .status-ok {
+        color: var(--state-healthy);
+        background: var(--state-healthy-bg);
+    }
+
+    .dashboard .status-warning {
+        color: var(--state-warning);
+        background: var(--state-warning-bg);
+    }
+
+    .dashboard .status-unknown {
+        color: var(--state-neutral);
+        background: var(--state-neutral-bg);
+    }
+
+    /* Resource metrics */
+
+    .dashboard .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        border: 1px solid var(--graphite-border);
+        border-radius: 7px;
+        background: var(--graphite-surface);
+        margin-bottom: 1.75rem;
+    }
+
+    .dashboard .metric-item {
+        min-width: 0;
+        padding: 1.1rem 1.2rem;
+    }
+
+    .dashboard .metric-item + .metric-item {
+        border-left: 1px solid var(--graphite-border);
+    }
+
+    .dashboard .metric-label {
+        color: var(--graphite-muted);
+        font-size: 0.8rem;
+        font-weight: 500;
+        margin-bottom: 0.8rem;
+    }
+
+    .dashboard .metric-value {
+        color: var(--graphite-heading);
+        font-size: 1.8rem;
+        font-weight: 600;
+        letter-spacing: -0.04em;
+        line-height: 1.2;
+        margin-bottom: 0.95rem;
+        overflow-wrap: anywhere;
+    }
+
+    .dashboard .metric-unit {
+        color: var(--graphite-muted);
+        font-size: 0.95rem;
+        font-weight: 400;
+        margin-left: 0.1rem;
+    }
+
+    .dashboard .metric-footer {
+        min-height: 2.1rem;
+        padding-top: 0.7rem;
+        border-top: 1px solid var(--graphite-border);
+    }
+
+    /* Web service panel */
+
+    .dashboard .service-panel {
+        background: var(--graphite-surface);
+        border: 1px solid var(--graphite-border);
+        border-radius: 7px;
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+    }
+
+    .dashboard .service-panel-header {
+        padding: 1rem 1.2rem;
+        border-bottom: 1px solid var(--graphite-border);
+    }
+
+    .dashboard .service-panel-body {
+        display: grid;
+        grid-template-columns: minmax(0, 1.5fr) minmax(0, 0.7fr) minmax(0, 1fr);
+    }
+
+    .dashboard .service-item {
+        min-width: 0;
+        padding: 1.1rem 1.2rem;
+    }
+
+    .dashboard .service-item + .service-item {
+        border-left: 1px solid var(--graphite-border);
+    }
+
+    .dashboard .detail-label {
+        color: var(--graphite-muted);
+        font-size: 0.78rem;
+        font-weight: 500;
+        margin-bottom: 0.55rem;
+    }
+
+    .dashboard .detail-value {
+        color: var(--graphite-heading);
+        font-weight: 600;
+        overflow-wrap: anywhere;
+    }
+
+    .dashboard .service-link {
+        color: var(--graphite-accent);
+        text-decoration: none;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+    }
+
+    .dashboard .service-link:hover {
+        color: #ffffff;
+        text-decoration: underline;
+    }
+
+    /* Empty state */
+
+    .dashboard .empty-state {
+        background: var(--graphite-surface);
+        border: 1px solid var(--graphite-border);
+        border-radius: 7px;
+        padding: 3rem 1.5rem;
+        text-align: center;
+    }
+
+    .dashboard .empty-title {
+        color: var(--graphite-heading);
+        font-size: 1.05rem;
+        font-weight: 600;
+        margin-bottom: 0.65rem;
+    }
+
+    .dashboard .empty-description {
+        color: var(--graphite-muted);
+        max-width: 440px;
+        line-height: 1.6;
+        margin: 0 auto 1.25rem;
+    }
+
+    /* Responsive layout */
+
+    @media (max-width: 767.98px) {
+        .dashboard .metrics-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .dashboard .metric-item + .metric-item {
+            border-left: none;
+            border-top: 1px solid var(--graphite-border);
+        }
+
+        .dashboard .service-panel-body {
+            grid-template-columns: 1fr;
+        }
+
+        .dashboard .service-item + .service-item {
+            border-left: none;
+            border-top: 1px solid var(--graphite-border);
+        }
+    }
+
+    @media (max-width: 575.98px) {
+        .dashboard .dashboard-header {
+            align-items: flex-start;
+        }
+
+        .dashboard .page-title {
+            font-size: 1.4rem;
+        }
+
+        .dashboard .dashboard-header form,
+        .dashboard .dashboard-header .btn-monitor {
+            width: 100%;
+        }
+
+        .dashboard .server-panel-inner {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .dashboard .metric-item {
+            padding: 1rem;
+        }
+
+        .dashboard .metric-value {
+            font-size: 1.65rem;
+        }
+    }
+</style>
+
+
+<div class="dashboard">
+
+    <!-- Page heading -->
+
+    <div class="dashboard-header">
+        <div>
+            <div class="page-pretitle">Infrastructure monitoring</div>
+
+            <h1 class="page-title">Dashboard</h1>
+
+            <p class="page-description">
+                Monitor server resources and service availability.
+            </p>
+        </div>
+
+        <form action="{{ url_for('trigger_monitoring') }}" method="POST">
+            <button type="submit" class="btn btn-monitor">
+                Run Monitoring
+            </button>
+        </form>
+    </div>
+
+
+    {% if latest_record %}
+
+    <!-- Server summary -->
+
+    <div class="server-panel">
+        <div class="server-panel-inner">
+
+            <div class="server-identity">
+                <div class="server-label">Monitored server</div>
+
+                <div class="server-name">
+                    {{ latest_record[2] or "Unknown server" }}
+                </div>
+
+                <div class="recorded-time">
+                    Last recorded:
+                    {{ latest_record[1] or "Unavailable" }}
+                </div>
+            </div>
+
+            <div class="server-health">
+                <span class="health-caption">Health status</span>
+
+                {% if latest_record[9] == "HEALTHY" %}
+                    <span class="status-badge status-ok">HEALTHY</span>
+                {% elif latest_record[9] == "WARNING" %}
+                    <span class="status-badge status-warning">WARNING</span>
+                {% else %}
+                    <span class="status-badge status-unknown">UNKNOWN</span>
+                {% endif %}
+            </div>
+
+        </div>
+    </div>
+
+
+    <!-- Resource metrics -->
+
+    <div class="section-heading">
+        <div>
+            <h2 class="section-title">Resource Metrics</h2>
+            <div class="section-description">
+                Latest recorded utilization
+            </div>
+        </div>
+    </div>
+
+    <div class="metrics-grid">
+
+        <!-- CPU -->
+
+        <div class="metric-item">
+            <div class="metric-label">CPU Usage</div>
+
+            <div class="metric-value">
+                {% if latest_record[3] is not none %}
+                    {{ "%.1f"|format(latest_record[3]) }}<span class="metric-unit">%</span>
+                {% else %}
+                    N/A
+                {% endif %}
+            </div>
+
+            <div class="metric-footer">
+                {% if latest_record[6] %}
+                    {% if "WARNING" in latest_record[6] %}
+                        <span class="status-badge status-warning">
+                            {{ latest_record[6] }}
+                        </span>
+                    {% elif "unavailable" in latest_record[6]|lower %}
+                        <span class="status-badge status-unknown">
+                            {{ latest_record[6] }}
+                        </span>
+                    {% else %}
+                        <span class="status-badge status-ok">
+                            {{ latest_record[6] }}
+                        </span>
+                    {% endif %}
+                {% else %}
+                    <span class="status-badge status-unknown">
+                        Status unavailable
+                    </span>
+                {% endif %}
+            </div>
+        </div>
+
+
+        <!-- Memory -->
+
+        <div class="metric-item">
+            <div class="metric-label">Memory Usage</div>
+
+            <div class="metric-value">
+                {% if latest_record[4] is not none %}
+                    {{ "%.1f"|format(latest_record[4]) }}<span class="metric-unit">%</span>
+                {% else %}
+                    N/A
+                {% endif %}
+            </div>
+
+            <div class="metric-footer">
+                {% if latest_record[7] %}
+                    {% if "WARNING" in latest_record[7] %}
+                        <span class="status-badge status-warning">
+                            {{ latest_record[7] }}
+                        </span>
+                    {% elif "unavailable" in latest_record[7]|lower %}
+                        <span class="status-badge status-unknown">
+                            {{ latest_record[7] }}
+                        </span>
+                    {% else %}
+                        <span class="status-badge status-ok">
+                            {{ latest_record[7] }}
+                        </span>
+                    {% endif %}
+                {% else %}
+                    <span class="status-badge status-unknown">
+                        Status unavailable
+                    </span>
+                {% endif %}
+            </div>
+        </div>
+
+
+        <!-- Disk -->
+
+        <div class="metric-item">
+            <div class="metric-label">Disk Usage</div>
+
+            <div class="metric-value">
+                {% if latest_record[5] is not none %}
+                    {{ "%.1f"|format(latest_record[5]) }}<span class="metric-unit">%</span>
+                {% else %}
+                    N/A
+                {% endif %}
+            </div>
+
+            <div class="metric-footer">
+                {% if latest_record[8] %}
+                    {% if "WARNING" in latest_record[8] %}
+                        <span class="status-badge status-warning">
+                            {{ latest_record[8] }}
+                        </span>
+                    {% elif "unavailable" in latest_record[8]|lower %}
+                        <span class="status-badge status-unknown">
+                            {{ latest_record[8] }}
+                        </span>
+                    {% else %}
+                        <span class="status-badge status-ok">
+                            {{ latest_record[8] }}
+                        </span>
+                    {% endif %}
+                {% else %}
+                    <span class="status-badge status-unknown">
+                        Status unavailable
+                    </span>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- Web service -->
+
+    <div class="service-panel">
+
+        <div class="service-panel-header">
+            <h2 class="section-title">Web Service</h2>
+
+            <div class="section-description">
+                Endpoint availability and HTTP response
+            </div>
+        </div>
+
+        <div class="service-panel-body">
+
+            <!-- URL -->
+
+            <div class="service-item">
+                <div class="detail-label">Monitored URL</div>
+
+                {% if latest_record[10] %}
+                    <a
+                        class="service-link"
+                        href="{{ latest_record[10] }}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        {{ latest_record[10] }}
+                    </a>
+                {% else %}
+                    <div class="detail-value">URL unavailable</div>
+                {% endif %}
+            </div>
+
+
+            <!-- HTTP code -->
+
+            <div class="service-item">
+                <div class="detail-label">HTTP Status Code</div>
+
+                <div class="detail-value mb-2">
+                    {% if latest_record[11] is not none %}
+                        {{ latest_record[11] }}
+                    {% else %}
+                        N/A
+                    {% endif %}
+                </div>
+
+                {% if latest_record[11] is not none %}
+                    {% if latest_record[11] >= 200 and latest_record[11] < 300 %}
+                        <span class="status-badge status-ok">
+                            Successful response
+                        </span>
+                    {% elif latest_record[11] >= 400 %}
+                        <span class="status-badge status-warning">
+                            HTTP error
+                        </span>
+                    {% else %}
+                        <span class="status-badge status-unknown">
+                            Check response
+                        </span>
+                    {% endif %}
+                {% else %}
+                    <span class="status-badge status-unknown">
+                        No response
+                    </span>
+                {% endif %}
+            </div>
+
+
+            <!-- Web service status -->
+
+            <div class="service-item">
+                <div class="detail-label">Web Service Status</div>
+
+                {% if latest_record[12] %}
+                    {% if "normally" in latest_record[12]|lower %}
+                        <span class="status-badge status-ok">
+                            {{ latest_record[12] }}
+                        </span>
+                    {% elif "unavailable" in latest_record[12]|lower
+                          or "error" in latest_record[12]|lower
+                          or "not found" in latest_record[12]|lower %}
+                        <span class="status-badge status-warning">
+                            {{ latest_record[12] }}
+                        </span>
+                    {% else %}
+                        <span class="status-badge status-unknown">
+                            {{ latest_record[12] }}
+                        </span>
+                    {% endif %}
+                {% else %}
+                    <span class="status-badge status-unknown">
+                        Status unavailable
+                    </span>
+                {% endif %}
+            </div>
+
+        </div>
+    </div>
+
+
+    {% else %}
+
+    <!-- Empty state -->
+
+    <div class="empty-state">
+        <h2 class="empty-title">No monitoring data available</h2>
+
+        <p class="empty-description">
+            Run your first monitoring check to see your server metrics here.
+        </p>
+
+        <form action="{{ url_for('trigger_monitoring') }}" method="POST">
+            <button type="submit" class="btn btn-monitor">
+                Run First Monitoring
+            </button>
+        </form>
+    </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block title %}CloudOps Monitor | Logs & Alerts{% endblock %}
+{% block content %}
+<div class="page-header d-print-none mb-4">
+    <div class="row align-items-center">
+        <div class="col">
+            <div class="page-pretitle">Monitoring</div>
+            <h2 class="page-title">Logs &amp; Alerts</h2>
+            <div class="text-secondary mt-1">
+                Monitoring reports and system alerts
+            </div>
+        </div>
+        <div class="col-auto ms-auto">
+            <span class="badge bg-primary-lt">
+                {{ logs_content|length }} reports
+            </span>
+        </div>
+    </div>
+</div>
+<div class="card mb-3">
+    <div class="card-body">
+        <form method="GET" action="{{ url_for('logs') }}">
+            <div class="row align-items-end">
+
+                <div class="col-md-6">
+                    <label class="form-label" for="filter">
+                        Filter monitoring reports
+                    </label>
+
+                    <select
+                        class="form-select"
+                        id="filter"
+                        name="filter"
+                    >
+                        <option value="all"
+                            {% if alert_filter == "all" %}selected{% endif %}>
+                            All reports
+                        </option>
+
+                        <option value="alerts"
+                            {% if alert_filter == "alerts" %}selected{% endif %}>
+                            Reports with alerts
+                        </option>
+
+                        <option value="web_errors"
+                            {% if alert_filter == "web_errors" %}selected{% endif %}>
+                            Web service errors
+                        </option>
+                    </select>
+                </div>
+
+                <div class="col-md-auto mt-3 mt-md-0">
+                    <button type="submit" class="btn btn-primary">
+                        Apply filter
+                    </button>
+
+                    <a href="{{ url_for('logs') }}"
+                       class="btn btn-outline-secondary">
+                        Reset
+                    </a>
+                </div>
+
+            </div>
+        </form>
+    </div>
+</div>
+{% if logs_content %}
+    {% for report in logs_content %}
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3 class="card-title">
+                Monitoring report #{{ loop.index }}
+            </h3>
+            <div class="card-actions">
+                {% if "Server health: HEALTHY" in report %}
+                    <span class="badge bg-success-lt">HEALTHY</span>
+                {% elif "Server health: WARNING" in report %}
+                    <span class="badge bg-warning-lt">WARNING</span>
+                {% else %}
+                    <span class="badge bg-secondary-lt">REVIEW</span>
+                {% endif %}
+            </div>
+        </div>
+        <div class="card-body">
+            <pre class="mb-0 text-secondary" style="white-space: pre-wrap; overflow-wrap: anywhere; font-size: 0.875rem;">{{ report }}</pre>
+        </div>
+    </div>
+    {% endfor %}
+{% else %}
+    <div class="card">
+        <div class="card-body">
+            <div class="empty">
+                <div class="empty-title">No monitoring reports available</div>
+                <p class="empty-subtitle text-secondary">
+                    Run a monitoring check to generate a report.
+                </p>
+            </div>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}

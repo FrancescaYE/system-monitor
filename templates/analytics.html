@@ -1,0 +1,380 @@
+{% extends "base.html" %}
+{% block title %}CloudOps Monitor | Analytics{% endblock %}
+{% block content %}
+<!-- Page header -->
+<div class="page-header d-print-none">
+    <div class="container-xl">
+        <div class="row align-items-center">
+            <div class="col">
+                <div class="page-pretitle">Monitoring</div>
+                <h2 class="page-title">Analytics & History</h2>
+                <div class="text-secondary mt-1">
+                    Monitor resource utilization and review server health history.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="page-body">
+    <div class="container-xl">
+        <!-- Filters -->
+        <div class="card mb-3">
+            <div class="card-header">
+                <h3 class="card-title">Filters</h3>
+            </div>
+            <div class="card-body">
+                <form action="{{ url_for('analytics') }}" method="get">
+                    <div class="row g-3 align-items-end">
+                        <div class="col-12 col-md-4">
+                            <label class="form-label" for="period">
+                                Time period
+                            </label>
+                            <select
+                                class="form-select"
+                                name="period"
+                                id="period"
+                            >
+                                <option value="1h"
+                                    {% if period == "1h" %}selected{% endif %}>
+                                    Last hour
+                                </option>
+                                <option value="24h"
+                                    {% if period == "24h" %}selected{% endif %}>
+                                    Last 24 hours
+                                </option>
+                                <option value="7d"
+                                    {% if period == "7d" %}selected{% endif %}>
+                                    Last 7 days
+                                </option>
+                                <option value="custom"
+                                    {% if period == "custom" %}selected{% endif %}>
+                                    Custom range
+                                </option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label class="form-label" for="health_status">
+                                Health status
+                            </label>
+                            <select
+                                class="form-select"
+                                name="health_status"
+                                id="health_status"
+                            >
+                                <option value="all"
+                                    {% if health_status == "all" %}selected{% endif %}>
+                                    All statuses
+                                </option>
+                                <option value="HEALTHY"
+                                    {% if health_status == "HEALTHY" %}selected{% endif %}>
+                                    Healthy
+                                </option>
+                                <option value="WARNING"
+                                    {% if health_status == "WARNING" %}selected{% endif %}>
+                                    Warning
+                                </option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <button type="submit" class="btn btn-primary w-100">
+                                Apply filters
+                            </button>
+                        </div>
+                        <div class="col-12" id="date-fields">
+                            <div class="row g-3">
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label" for="start_date">
+                                        Start date
+                                    </label>
+                                    <input
+                                        class="form-control"
+                                        type="date"
+                                        name="start_date"
+                                        id="start_date"
+                                        value="{{ start_date }}"
+                                    >
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label" for="end_date">
+                                        End date
+                                    </label>
+                                    <input
+                                        class="form-control"
+                                        type="date"
+                                        name="end_date"
+                                        id="end_date"
+                                        value="{{ end_date }}"
+                                    >
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!-- Summary cards -->
+        <div class="row row-cards mb-3">
+            <div class="col-12 col-sm-6 col-lg-4">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="subheader">Total measurements</div>
+                        <div class="h1 mb-0">
+                            {{ stats.total_measurements }}
+                        </div>
+                        <div class="text-secondary mt-2">
+                            Measurements in the selected period
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-lg-4">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="subheader">Warning measurements</div>
+                        <div class="h1 mb-0 text-warning">
+                            {{ stats.warning_count }}
+                        </div>
+                        <div class="text-secondary mt-2">
+                            Measurements with WARNING status
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-lg-4">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="subheader">Selected period</div>
+                        <div class="h1 mb-0">
+                            {% if period == "1h" %}
+                                1 hour
+                            {% elif period == "24h" %}
+                                24 hours
+                            {% elif period == "7d" %}
+                                7 days
+                            {% else %}
+                                Custom
+                            {% endif %}
+                        </div>
+                        <div class="text-secondary mt-2">
+                            Current analytics filter
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Usage statistics -->
+        <div class="card mb-3">
+            <div class="card-header">
+                <div>
+                    <h3 class="card-title">Usage statistics</h3>
+                    <div class="text-secondary small">
+                        Average, maximum and minimum resource utilization
+                    </div>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-vcenter card-table">
+                    <thead>
+                        <tr>
+                            <th>Resource</th>
+                            <th>Average</th>
+                            <th>Maximum</th>
+                            <th>Minimum</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for metric, values in {
+                            'CPU': stats.cpu_usage,
+                            'Memory': stats.memory_usage,
+                            'Disk': stats.disk_usage
+                        }.items() %}
+                        <tr>
+                            <td class="fw-medium">{{ metric }}</td>
+                            <td>{{ "%.2f"|format(values.average) }}%</td>
+                            <td>{{ "%.2f"|format(values.maximum) }}%</td>
+                            <td>{{ "%.2f"|format(values.minimum) }}%</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <!-- Charts -->
+        <div class="row row-cards mb-3">
+            <div class="col-12 col-xl-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <div>
+                            <h3 class="card-title">Average resource usage</h3>
+                            <div class="text-secondary small">
+                                Average CPU, memory and disk utilization
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div style="position: relative; height: 280px;">
+                            <canvas id="usageChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-xl-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <div>
+                            <h3 class="card-title">Health status distribution</h3>
+                            <div class="text-secondary small">
+                                Healthy versus warning measurements
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div style="position: relative; height: 280px;">
+                            <canvas id="healthDistributionChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Monitoring history -->
+        <div class="card">
+            <div class="card-header">
+                <div>
+                    <h3 class="card-title">Monitoring history</h3>
+                    <div class="text-secondary small">
+                        Recorded resource usage and server health
+                    </div>
+                </div>
+                <div class="ms-auto text-secondary small">
+                    {{ history|length }} records
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-vcenter card-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Server</th>
+                            <th>CPU</th>
+                            <th>Memory</th>
+                            <th>Disk</th>
+                            <th>Health</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for record in history %}
+                        <tr>
+                            <td class="text-secondary text-nowrap">
+                                {{ record[1] }}
+                            </td>
+                            <td class="fw-medium">
+                                {{ record[2] }}
+                            </td>
+                            <td class="text-nowrap">{{ record[3] }}%</td>
+                            <td class="text-nowrap">{{ record[4] }}%</td>
+                            <td class="text-nowrap">{{ record[5] }}%</td>
+                            <td>
+                                {% if record[9] == "HEALTHY" %}
+                                    <span class="badge bg-success-lt">
+                                        HEALTHY
+                                    </span>
+                                {% elif record[9] == "WARNING" %}
+                                    <span class="badge bg-warning-lt">
+                                        WARNING
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-secondary-lt">
+                                        {{ record[9] }}
+                                    </span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="6" class="text-center text-secondary py-4">
+                                No measurements found for this period.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Custom date fields -->
+<script>
+    const periodSelect = document.getElementById("period");
+    const dateFields = document.getElementById("date-fields");
+    const startDate = document.getElementById("start_date");
+    const endDate = document.getElementById("end_date");
+    function updateDateFields() {
+        const isCustom = periodSelect.value === "custom";
+        dateFields.style.display = isCustom ? "block" : "none";
+        if (!isCustom) {
+            startDate.value = "";
+            endDate.value = "";
+        }
+    }
+    periodSelect.addEventListener("change", updateDateFields);
+    updateDateFields();
+</script>
+<!-- Charts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const usageChart = document.getElementById("usageChart");
+    new Chart(usageChart, {
+        type: "bar",
+        data: {
+            labels: ["CPU", "Memory", "Disk"],
+            datasets: [{
+                label: "Average usage (%)",
+                data: [
+                    {{ stats.cpu_usage.average }},
+                    {{ stats.memory_usage.average }},
+                    {{ stats.disk_usage.average }}
+                ],
+                borderWidth: 1,
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    title: {
+                        display: true,
+                        text: "Usage (%)"
+                    }
+                }
+            }
+        }
+    });
+    const healthChart = document.getElementById("healthDistributionChart");
+    new Chart(healthChart, {
+        type: "pie",
+        data: {
+            labels: ["HEALTHY", "WARNING"],
+            datasets: [{
+                data: [
+                    {{ health_distribution["HEALTHY"] }},
+                    {{ health_distribution["WARNING"] }}
+                ],
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: "bottom"
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

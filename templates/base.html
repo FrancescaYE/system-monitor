@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tabler.min.css') }}">
+
+</head>
+
+<body>
+
+    <div class="page">
+
+        <aside class="navbar navbar-vertical navbar-expand-lg" data-bs-theme="dark">
+
+            <div class="container-fluid">
+
+                <h1 class="navbar-brand navbar-brand-autodark mb-4 w-100 text-center">
+                    <span>CloudOps Monitor</span>
+                </h1>
+
+                <div class="collapse navbar-collapse show">
+                    <ul class="navbar-nav pt-lg-3 gap-5">
+
+                        <li class="nav-item {% if request.endpoint == 'home' %}active{% endif %}">
+                            <a href="{{ url_for('home') }}" class="nav-link">
+                                <span class="nav-link-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round">
+                                        <rect x="3" y="3" width="7" height="9" rx="1" />
+                                        <rect x="14" y="3" width="7" heigh="5" rx="1" />
+                                        <rect x="14" y="12" width="7" height="9" rx="1" />
+                                        <rect x="3" y="16" width="7" height="5" rx="1" />
+                                    </svg>
+                                </span>
+                                <span class="nav-link-title">Dashboard</span>
+                            </a>
+                        </li>
+
+                        <li class="nav-item {% if request.endpoint == 'analytics' %}active{% endif %}">
+                            <a href="{{ url_for('analytics') }}" class="nav-link">
+                                <span class="nav-link-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round">
+                                        <path d="M3 3v18h18" />
+                                        <path d="m19 9-5 5-4-4-3 3" />
+                                    </svg>
+                                </span>
+                                <span class="nav-link-title">Analytics &amp; History</span>
+                            </a>
+                        </li>
+
+                        <li class="nav-item {% if request.endpoint == 'logs' %}active{% endif %}">
+                            <a href="{{ url_for('logs') }}" class="nav-link">
+                                <span class="nav-link-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round">
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                                        <path d="M14 2v6h6" />
+                                        <path d="M8 13h8" />
+                                        <path d="M8 17h8" />
+                                    </svg>
+                                </span>
+                                <span class="nav-link-title">Logs &amp; Alerts</span>
+                            </a>
+                        </li>
+
+                    </ul>
+                </div>
+
+            </div>
+
+        </aside>
+
+        <div class="page-wrapper">
+            <div class="page-body">
+                <div class="container-xl">
+
+                    {% with messages = get_flashed_messages() %}
+                    {% for message in messages %}
+                    <div class="alert alert-success flash-alert" role="alert">
+                        <strong>Success!</strong> {{ message }}
+                    </div>
+                    {% endfor %}
+                    {% endwith %}
+
+                    {% block content %}{% endblock %}
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <script src="{{ url_for('static', filename='js/tabler.min.js') }}"></script>
+    <script>
+        document.querySelectorAll(".flash-alert").forEach(function (alert) {
+            setTimeout(function () {
+                alert.style.transition = "opacity 0.5s ease";
+                alert.style.opacity = "0";
+
+                setTimeout(function () {
+                    alert.remove();
+                }, 500);
+            }, 4000);
+        });
+    </script>
+</body>
+
+</html>
