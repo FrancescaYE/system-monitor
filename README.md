@@ -122,3 +122,14 @@ Open the following address in your browser:
 http://127.0.0.1:5000
 
 The application provides access to the Dashboard, Analytics & History, and Logs & Alerts pages.
+
+## Screenshots
+
+### Dashboard
+![CloudOps Monitor Dashboard](screenshots/dashboard.jpeg)
+
+### Analytics
+![CloudOps Monitor Analytics](screenshots/analytics.jpeg)
+
+### Logs and alerts
+![CloudOps Monitor Logs and Alerts](screenshots/logsAlerts.jpeg)

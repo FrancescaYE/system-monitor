@@ -122,3 +122,14 @@ Ouvrez l’adresse suivante dans votre navigateur :
 http://127.0.0.1:5000
 
 L’application donne accès au tableau de bord, à la page d’analyse et d’historique, ainsi qu’à la page des journaux et des alertes.
+
+## Captures d’écran
+
+### Tableau de bord
+![Tableau de bord CloudOps Monitor](screenshots/dashboard.jpeg)
+
+### Analyses
+![Analyses CloudOps Monitor](screenshots/analytics.jpeg)
+
+### Journaux et alertes
+![Journaux et alertes CloudOps Monitor](screenshots/logsAlerts.jpeg)
