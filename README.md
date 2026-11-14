@@ -1,50 +1,55 @@
-# CloudOps Monitor
+# SystemMonitor
 
-CloudOps Monitor is a Python-based monitoring application designed to collect and display system metrics, monitor server health, check web service availability, and provide historical monitoring data through a web interface.
+SystemMonitor est une application de supervision développée en Python. Elle permet de collecter et d’afficher des métriques système, de surveiller l’état des serveurs, de vérifier la disponibilité des services web et de consulter l’historique des opérations de supervision à travers une interface web.
 
-The project combines system monitoring, data persistence, analytics, and log-based alerts in a Flask web application.
+Le projet combine la supervision système, la persistance des données, l’analyse des résultats et la gestion des alertes à partir des journaux, au sein d’une application web développée avec Flask.
 
-## Features
+## Fonctionnalités
 
-* System Metrics: Collects CPU, memory, and disk usage.
-* Server Health Monitoring: Evaluates server health based on monitoring results.
-* Web Service Checks: Checks web service availability and records HTTP responses.
-* Monitoring History: Stores monitoring results in an SQLite database.
-* Analytics Dashboard: Displays monitoring statistics and supports filtering by period and health status.
-* Logs and Alerts: Displays monitoring reports and allows filtering of alerts and web service errors.
-* Web Interface: Provides a dashboard built with Flask, HTML, CSS, and JavaScript.
+* Métriques système : collecte de l’utilisation du processeur (CPU), de la mémoire et du disque.
+* Surveillance de l’état des serveurs : évaluation de leur état de santé à partir des résultats de supervision.
+* Vérification des services web : contrôle de leur disponibilité et enregistrement des réponses HTTP.
+* Historique de supervision : stockage des résultats dans une base de données SQLite.
+* Tableau de bord analytique : affichage de statistiques et filtrage des résultats par période et par état de santé.
+* Journaux et alertes : consultation des rapports de supervision et filtrage des alertes et des erreurs liées aux services web.
+* Interface web : tableau de bord développé avec Flask, HTML, CSS et JavaScript.
 
-## Design Approach
+## Approche de conception
 
-This project uses HTML templates and the Tabler UI framework to provide a clean and functional web interface.
+Ce projet utilise des modèles HTML et le framework d’interface Tabler afin de proposer une interface web claire et fonctionnelle.
 
-I chose this approach to focus primarily on backend development, including system metrics collection, server health monitoring, database operations, analytics, and log management, while still delivering a usable web application.
+J’ai choisi cette approche pour me concentrer principalement sur le développement backend, notamment la collecte des métriques système, la surveillance de l’état des serveurs, les opérations sur la base de données, l’analyse des résultats et la gestion des journaux, tout en proposant une application web utilisable.
 
-This allowed me to prioritize the core monitoring logic and infrastructure-related functionality rather than building a frontend interface from scratch.
+Cette approche m’a permis de privilégier la logique de supervision et les fonctionnalités liées aux systèmes et à l’infrastructure, plutôt que de développer une interface frontend entièrement à partir de zéro.
 
-## Technologies Used
+## Technologies utilisées
 
-* Python: Core application logic and monitoring operations.
-* Flask: Web application framework and routing.
-* SQLite: Persistent storage for monitoring history.
-* psutil: System metrics collection.
-* Requests: HTTP requests for web service availability checks.
-* HTML, CSS, and JavaScript: Web interface.
-* Tabler: UI framework used to build the dashboard layout and components.
-* Git: Version control.
-* Linux (Ubuntu/WSL): Development environment.
+* Python : logique principale de l’application et opérations de supervision.
+* Flask : framework web utilisé pour gérer l’application et ses routes.
+* SQLite : stockage persistant de l’historique de supervision.
+* psutil : collecte des métriques système.
+* Requests : envoi de requêtes HTTP pour vérifier la disponibilité des services web.
+* HTML, CSS et JavaScript : technologies utilisées pour l’interface web.
+* Tabler : framework d’interface utilisé pour construire la structure et les composants du tableau de bord.
+* Git : gestion des versions du code.
+* Linux (Ubuntu/WSL) : environnement de développement.
 
-## Project Structure
+## Structure du projet
 
 ```text
-python-cloudops-monitor/
+system-monitor/
+│
 ├── app.py
 ├── config.py
 ├── requirements.txt
+├── .gitignore
+├── README.md
+│
 ├── database/
 │   ├── __init__.py
 │   ├── db.py
 │   └── schema.sql
+│
 ├── monitoring/
 │   ├── __init__.py
 │   ├── analytics.py
@@ -54,9 +59,16 @@ python-cloudops-monitor/
 │   ├── reports.py
 │   ├── service.py
 │   └── web_checks.py
+│
+├── screenshots/
+│   ├── dashboard.jpeg
+│   ├── analytics.jpeg
+│   └── logsAlerts.jpeg
+│
 ├── static/
 │   ├── css/
 │   └── js/
+│
 └── templates/
     ├── base.html
     ├── index.html
@@ -64,72 +76,70 @@ python-cloudops-monitor/
     └── logs.html
 ```
 
-## Main Components
+## Principaux composants
 
-* app.py: Defines the Flask application and web routes.
-* config.py: Manages application configuration.
-* database/: Handles database initialization, metric storage, and history retrieval.
-* monitoring/: Contains the monitoring logic, metrics collection, health checks, reports, logs, and analytics.
-* templates/: Contains the HTML templates used to render the web pages.
-* static/: Contains the CSS and JavaScript resources used by the interface.
-* requirements.txt: Lists the Python dependencies required to run the application.
+* app.py : définit l’application Flask et les routes web.
+* config.py : gère la configuration de l’application.
+* database/ : contient les fonctionnalités d’initialisation de la base de données, de stockage des métriques et de récupération de l’historique.
+* monitoring/ : regroupe la logique de supervision, la collecte des métriques, les contrôles d’état, les rapports, les journaux et les analyses.
+* templates/ : contient les modèles HTML utilisés pour afficher les pages web.
+* static/ : contient les ressources CSS et JavaScript de l’interface.
+* requirements.txt : répertorie les dépendances Python nécessaires à l’application.
 
-## Installation and Usage
+## Installation et utilisation
 
-### Prerequisites
+### Prérequis
 
 * Python 3
 * Git
-* A Linux environment or Ubuntu through WSL
+* Un environnement Linux ou Ubuntu via WSL
 
-### 1. Clone the Repository
+### 1. Cloner le dépôt
 
 ```bash
-git clone <repository-url>
-cd python-cloudops-monitor
+git clone https://github.com/FrancescaYE/system-monitor
+cd system-monitor
 ```
 
-Replace `<repository-url>` with the URL of your GitHub repository.
-
-### 2. Create a Virtual Environment
+### 2. Créer un environnement virtuel
 
 ```bash
 python3 -m venv .venv
 ```
 
-### 3. Activate the Virtual Environment
+### 3. Activer l’environnement virtuel
 
 ```bash
 source .venv/bin/activate
 ```
 
-### 4. Install Dependencies
+### 4. Installer les dépendances
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 5. Start the Application
+### 5. Démarrer l’application
 
 ```bash
-flask --app app run
+pyhon app.py
 ```
 
-### 6. Open the Dashboard
+### 6. Accéder au tableau de bord
 
-Open the following address in your browser:
+Ouvrez l’adresse suivante dans votre navigateur :
 
 http://127.0.0.1:5000
 
-The application provides access to the Dashboard, Analytics & History, and Logs & Alerts pages.
+L’application donne accès au tableau de bord, à la page d’analyse et d’historique, ainsi qu’à la page des journaux et des alertes.
 
-## Screenshots
+## Captures d’écran
 
-### Dashboard
-![CloudOps Monitor Dashboard](screenshots/dashboard.jpeg)
+### Tableau de bord
+![Tableau de bord SystemMonitor](screenshots/dashboard.jpeg)
 
-### Analytics
-![CloudOps Monitor Analytics](screenshots/analytics.jpeg)
+### Analyses
+![Analyses SystemMonitor](screenshots/analytics.jpeg)
 
-### Logs and alerts
-![CloudOps Monitor Logs and Alerts](screenshots/logsAlerts.jpeg)
+### Journaux et alertes
+![Journaux et alertes SystemMonitor](screenshots/logsAlerts.png)

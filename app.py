@@ -103,3 +103,6 @@ def logs():
         logs_content=logs_content,
         alert_filter=alert_filter,
     )
+
+if __name__ == "__main__":
+    app.run(debug=True, port=5000)    

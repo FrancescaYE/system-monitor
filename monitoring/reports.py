@@ -34,7 +34,7 @@ def build_report(date, server, cpu_status, memory_status,
 
     report = f"""
 ==================================================
-                 CLOUDOPS MONITOR
+                 SYSTEMMONITOR
 ==================================================
 Monitoring date: {date}
 Server name: {server.server_name if server.server_name is not None else "Unavailable"}
