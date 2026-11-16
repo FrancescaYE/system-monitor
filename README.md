@@ -141,8 +141,9 @@ L’application donne accès au tableau de bord, à la page d’analyse et d’h
 ### Analyses
 ![Analyses SystemMonitor](screenshots/analytics.jpeg)
 
+### Journaux et alertes
+![Journaux et alertes SystemMonitor](screenshots/logsAlerts.png)
+
 ## Auteur
 FrancescaYE
 GitHub: https://github.com/FrancescaYE
-### Journaux et alertes
-![Journaux et alertes SystemMonitor](screenshots/logsAlerts.png)
