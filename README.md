@@ -90,7 +90,7 @@ system-monitor/
 
 ### Prérequis
 
-* Python 3
+* Python 3.12
 * Git
 * Un environnement Linux ou Ubuntu via WSL
 
@@ -122,7 +122,7 @@ pip install -r requirements.txt
 ### 5. Démarrer l’application
 
 ```bash
-pyhon app.py
+python app.py
 ```
 
 ### 6. Accéder au tableau de bord
@@ -141,5 +141,8 @@ L’application donne accès au tableau de bord, à la page d’analyse et d’h
 ### Analyses
 ![Analyses SystemMonitor](screenshots/analytics.jpeg)
 
+## Auteur
+FrancescaYE
+GitHub: https://github.com/FrancescaYE
 ### Journaux et alertes
 ![Journaux et alertes SystemMonitor](screenshots/logsAlerts.png)
